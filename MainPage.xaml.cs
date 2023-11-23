@@ -2,24 +2,37 @@
 {
     public partial class MainPage : ContentPage
     {
-        int count = 0;
-
         public MainPage()
         {
             InitializeComponent();
         }
 
-        private void OnCounterClicked(object sender, EventArgs e)
+        private void DropGestureRecognizer_Drop(object sender, DropEventArgs e)
         {
-            count++;
+            var control = (BoxView)e.Data.Properties["control"];
 
-            if (count == 1)
-                CounterBtn.Text = $"Clicked {count} time";
-            else
-                CounterBtn.Text = $"Clicked {count} times";
+            // remove from current layout
+            ((Layout)control.Parent).Children.Remove(control);
 
-            SemanticScreenReader.Announce(CounterBtn.Text);
+            // add to layout it has been dropped on
+            var dgr = (DropGestureRecognizer)sender;
+            var dropLayout = (Layout)dgr.Parent;
+            dropLayout.Children.Add(control);
+        }
+
+        private void DragGestureRecognizer_DragStarting(object sender, DragStartingEventArgs e)
+        {
+            var dgr = (DragGestureRecognizer)sender;
+            var boxView = (BoxView)dgr.Parent;
+            boxView.BackgroundColor = Colors.Black;
+            e.Data.Properties.Add("control", boxView);
+        }
+
+        private void DragGestureRecognizer_DropCompleted(object sender, DropCompletedEventArgs e)
+        {
+            var dgr = (DragGestureRecognizer)sender;
+            var boxView = (BoxView)dgr.Parent;
+            boxView.BackgroundColor = Colors.White;
         }
     }
-
 }
